@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using OfferteApp.Data;
+
 namespace OfferteApp;
 
 public class Program
@@ -6,16 +9,25 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        builder.Services.AddAuthorization();
+        // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
+        // builder.Services.AddAuthorization();
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        builder.Services.AddControllers();
+        builder.Configuration.AddEnvironmentVariables().AddJsonFile(builder.Environment.IsDevelopment()
+            ? "appsettings.development.json"
+            : "appsettings.json");
+
+        builder.Services.AddDbContext<DatabaseContext>(options =>
+            options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        app.MapControllers();
+
+        // Swagger documentatie alleen zichtbaar in development.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -24,7 +36,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseAuthorization();
+        // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
+        // app.UseAuthorization();
 
         app.Run();
     }
