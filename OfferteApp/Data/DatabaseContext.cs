@@ -7,5 +7,5 @@ public class DatabaseContext : DbContext
 {
     public DatabaseContext(DbContextOptions<DatabaseContext> options): base(options) {}
 
-    private DbSet<Quotation> Quotations { get; set; } = null!;
+    public DbSet<Quotation> Quotations { get; set; } = null!;
 }
