@@ -3,54 +3,69 @@ using Microsoft.EntityFrameworkCore;
 using OfferteApp.Data;
 using OfferteApp.Models;
 
-namespace OfferteApp;
-
-public class Program
+namespace OfferteApp
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        var builder = WebApplication.CreateBuilder(args);
-
-        // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
-        // builder.Services.AddAuthorization();
-
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
-        builder.Services.AddControllers();
-        builder.Configuration.AddEnvironmentVariables().AddJsonFile(builder.Environment.IsDevelopment()
-            ? "appsettings.development.json"
-            : "appsettings.json");
-
-        builder.Services.AddDbContext<DatabaseContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-
-        var app = builder.Build();
-
-        app.MapControllers();
-
-        var db = new DatabaseContext();
-        var filled = db.Set<Account>().FirstOrDefault();
-
-        if (filled == null)
+        public static void Main(string[] args)
         {
-            DBSeeding.Seed();
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
+            // builder.Services.AddAuthorization();
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+            builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443);
+
+            builder.Services.AddControllers();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
+
+            builder.Configuration.AddEnvironmentVariables().AddJsonFile(builder.Environment.IsDevelopment()
+                ? "appsettings.development.json"
+                : "appsettings.json");
+
+            builder.Services.AddDbContext<DatabaseContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+            var app = builder.Build();
+
+            app.UseHttpsRedirection(); // Add HTTPS redirection middleware here
+
+            app.UseRouting();
+
+            app.UseCors("AllowSpecificOrigin");
+
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            var db = new DatabaseContext();
+            var filled = db.Set<Account>().FirstOrDefault();
+
+            if (filled == null)
+            {
+                DBSeeding.Seed();
+            }
+
+            // Swagger documentatie alleen zichtbaar in development.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
+            app.Run();
         }
-
-        // Swagger documentatie alleen zichtbaar in development.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-
-
-        app.UseHttpsRedirection();
-
-        // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
-        // app.UseAuthorization();
-
-        app.Run();
     }
 }

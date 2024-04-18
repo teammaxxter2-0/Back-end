@@ -47,4 +47,12 @@ public class AccountService : ControllerBase
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAccountById), new { id = account.AccountId }, account);
     }
+
+    public async Task<Account> Authenticate(string username, string password)
+    {
+        // Implement authentication logic here
+        // Example:
+        var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Username == username && x.Password == password);
+        return account;
+    }
 }

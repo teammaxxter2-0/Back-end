@@ -7,7 +7,7 @@ public static class DBSeeding
 
     public static void Seed()
     {
-        Account acc1 = new() { Name = "Test", Password = "123" };
+        Account acc1 = new() { Username = "Test", Password = "123" };
         List<Account> accounts = new() { acc1 };
 
         var db = new DatabaseContext();
@@ -16,6 +16,7 @@ public static class DBSeeding
         {
             db.Add(acc);
         }
+        db.SaveChanges();
     }
 
 }
