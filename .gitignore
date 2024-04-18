@@ -1,5 +1,6 @@
 # Eigen bestanden
 appsettings*.json
+Migrations
 
 # Created by https://www.toptal.com/developers/gitignore/api/aspnetcore
 # Edit at https://www.toptal.com/developers/gitignore?templates=aspnetcore
