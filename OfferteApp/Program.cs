@@ -1,5 +1,7 @@
+using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using OfferteApp.Data;
+using OfferteApp.Models;
 
 namespace OfferteApp;
 
@@ -27,12 +29,22 @@ public class Program
 
         app.MapControllers();
 
+        var db = new DatabaseContext();
+        var filled = db.Set<Account>().FirstOrDefault();
+
+        if (filled == null)
+        {
+            DBSeeding.Seed();
+        }
+
         // Swagger documentatie alleen zichtbaar in development.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+
 
         app.UseHttpsRedirection();
 
