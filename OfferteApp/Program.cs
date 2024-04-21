@@ -1,5 +1,6 @@
 using Backend.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using OfferteApp.Data;
 using OfferteApp.Models;
 
@@ -13,22 +14,31 @@ namespace OfferteApp
 
             // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
             // builder.Services.AddAuthorization();
-
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443);
-
-            builder.Services.AddControllers();
-
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173")
+                    builder.WithOrigins("http://localhost:5173", "http://localhost:5018")
                            .AllowAnyHeader()
                            .AllowAnyMethod();
                 });
             });
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+            });
+
+            builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443);
+
+            builder.Services.AddControllers();
+
 
             builder.Configuration.AddEnvironmentVariables().AddJsonFile(builder.Environment.IsDevelopment()
                 ? "appsettings.development.json"
@@ -43,7 +53,7 @@ namespace OfferteApp
 
             app.UseRouting();
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseCors("AllowSpecificOrigin"); // Apply CORS policy
 
             app.UseAuthorization();
 
@@ -61,7 +71,10 @@ namespace OfferteApp
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+                });
             }
 
             // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.

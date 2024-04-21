@@ -25,7 +25,7 @@ public class AccountController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Account>> AddAccount(Account newAccount) => await _service.AddAccount(newAccount);
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<ActionResult<Account>> Login(LoginModel loginModel)
     {
         // Implement authentication logic here
