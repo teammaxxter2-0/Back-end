@@ -23,6 +23,16 @@ public class Program
         builder.Services.AddDbContext<DatabaseContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+        builder.Services.AddCors(options =>
+       {
+           options.AddPolicy("AllowSpecificOrigin", builder =>
+           {
+               builder.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+           });
+       });
+
         var app = builder.Build();
 
         app.MapControllers();
@@ -33,7 +43,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        app.UseCors("AllowSpecificOrigin");
         app.UseHttpsRedirection();
 
         // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
