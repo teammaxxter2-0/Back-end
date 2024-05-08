@@ -6,7 +6,7 @@ using OfferteApp.Services;
 namespace OfferteApp.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[accounts]")]
 public class AccountController : ControllerBase
 {
     private readonly AccountService _service;
@@ -22,19 +22,5 @@ public class AccountController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Account>> GetAccountById(int id) => await _service.GetAccountById(id);
 
-    [HttpPost]
-    public async Task<ActionResult<Account>> AddAccount(Account newAccount) => await _service.AddAccount(newAccount);
-
-    [HttpPost("login")]
-    public async Task<ActionResult<Account>> Login(LoginModel loginModel)
-    {
-        // Implement authentication logic here
-        // Example:
-        var account = await _service.Authenticate(loginModel.Username, loginModel.Password);
-        if (account == null)
-        {
-            return Unauthorized();
-        }
-        return Ok(account);
-    }
+    
 }

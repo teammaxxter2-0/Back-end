@@ -1,4 +1,8 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OfferteApp.Data;
 
 namespace OfferteApp;
@@ -10,7 +14,27 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
-        // builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(x =>
+        {
+            var key = Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]);
+            x.SaveToken = true;
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ClockSkew = TimeSpan.Zero,
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+        });
+
+        builder.Services.AddAuthorization();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -35,7 +59,7 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapControllers();
+
 
         // Swagger documentatie alleen zichtbaar in development.
         if (app.Environment.IsDevelopment())
@@ -46,8 +70,10 @@ public class Program
         app.UseCors("AllowSpecificOrigin");
         app.UseHttpsRedirection();
 
-        // Tijdelijk authentication uitgezet omdat het nog niet gebruikt wordt.
-        // app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.MapControllers();
 
         app.Run();
     }
