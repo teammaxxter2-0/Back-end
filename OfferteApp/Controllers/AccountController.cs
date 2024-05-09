@@ -6,7 +6,7 @@ using OfferteApp.Services;
 namespace OfferteApp.Controllers;
 
 [ApiController]
-[Route("[accounts]")]
+[Route("[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly AccountService _service;
@@ -22,5 +22,5 @@ public class AccountController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Account>> GetAccountById(int id) => await _service.GetAccountById(id);
 
-    
+
 }

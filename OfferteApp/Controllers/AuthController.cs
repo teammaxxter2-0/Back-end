@@ -15,7 +15,7 @@ namespace Backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static LoginModel loginAccount = new();
+        public static Account loginAccount = new();
         private readonly DatabaseContext _dataContext = new();
         private readonly IConfiguration _configuration;
         private readonly AccountService _userService;
