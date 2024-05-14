@@ -37,7 +37,7 @@ namespace Backend.Controllers
             {
                 return BadRequest("accountdb is null");
             }
-            var correspondingAccount = await _dataContext.Accounts.Where(acc => acc.Username == loginAccount.Username).FirstOrDefaultAsync();
+            var correspondingAccount = await _userService.Authenticate(request.Username, request.Password);
             if (correspondingAccount == null)
             {
                 return NotFound("Invalid credentials");

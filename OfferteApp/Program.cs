@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OfferteApp.Data;
+using OfferteApp.Services;
 
 namespace OfferteApp;
 
@@ -40,6 +41,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddControllers();
+        builder.Services.AddScoped<AccountService>();
         builder.Configuration.AddEnvironmentVariables().AddJsonFile(builder.Environment.IsDevelopment()
             ? "appsettings.development.json"
             : "appsettings.json");
