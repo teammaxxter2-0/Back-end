@@ -37,6 +37,7 @@ namespace Backend.Controllers
             {
                 return BadRequest("accountdb is null");
             }
+            string encryptedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var correspondingAccount = await _userService.Authenticate(request.Username, request.Password);
             if (correspondingAccount == null)
             {
@@ -45,7 +46,6 @@ namespace Backend.Controllers
             if (correspondingAccount.Username == request.Username)
             {
                 loginAccount.AccountId = correspondingAccount!.AccountId;
-                loginAccount.Token = CreateToken(correspondingAccount);
                 return Ok(loginAccount);
             }
             // Example:
