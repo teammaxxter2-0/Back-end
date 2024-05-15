@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -43,7 +43,7 @@ namespace Backend.Controllers
             {
                 return NotFound("Invalid credentials");
             }
-            if (correspondingAccount.Username == request.Username)
+            if (correspondingAccount.Username == request.Username && BCrypt.Net.BCrypt.Verify(correspondingAccount.Password, encryptedPassword))
             {
                 loginAccount.AccountId = correspondingAccount!.AccountId;
                 return Ok(loginAccount);
@@ -53,29 +53,6 @@ namespace Backend.Controllers
             return NotFound("Invalid credentials");
         }
 
-        private string CreateToken(Account account)
-        {
-            var claims = new ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.Name, account.Username),
-            });
-            var k = _configuration.GetSection("AppSettings:Token").Value!;
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(k));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-            var expiry = DateTime.Now.AddHours(1);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Expires = expiry,
-                Issuer = "Viscon", //aanpassen later? 
-                Audience = "Viscon_accounts",
-                SigningCredentials = creds,
-            };
-            //initiate the token handler 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenJwt = tokenHandler.CreateToken(tokenDescriptor);
-            var token = tokenHandler.WriteToken(tokenJwt);
 
-            return token;
-        }
     }
 }
