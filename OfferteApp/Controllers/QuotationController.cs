@@ -12,27 +12,27 @@ public class QuotationController(DatabaseContext context) : ControllerBase
     private readonly QuotationService _service = new(context);
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<ActionResult<IEnumerable<Quotation>>> Get()
     {
-        return _service.Get();
+        return await _service.Get();
     }
 
+
     [HttpPost]
-    public IActionResult Create([FromBody] Quotation quote)
+    public async Task<ActionResult<Quotation>> Create([FromBody] Quotation quote)
     {
-        return _service.Create(quote) ? Ok() : BadRequest();
+        return await _service.Create(quote);
     }
 
     [HttpPut]
-    public IActionResult Edit([FromBody] Quotation quote)
+    public async Task<ActionResult<Quotation>> Edit([FromBody] Quotation quote)
     {
-        return _service.Edit(quote) ? Ok() : BadRequest();
+        return await _service.Edit(quote);
     }
 
-    [HttpDelete]
-    [Route("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
     {
-        return _service.Delete(id) ? Ok() : BadRequest();
+        return await _service.Delete(id);
     }
 }

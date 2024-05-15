@@ -6,6 +6,7 @@ using OfferteApp.Models;
 using OfferteApp.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 
@@ -77,6 +78,16 @@ namespace Backend.Controllers
             var token = tokenHandler.WriteToken(tokenJwt);
 
             return token;
+        }
+
+        private string HashPassword(string password)
+        {
+            using (SHA256 hash = SHA256.Create())
+            {
+                byte [] bytes = hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                
+            }
         }
 
 
