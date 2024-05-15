@@ -15,7 +15,7 @@ namespace Backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static Account loginAccount = new();
+        public static LoginModel loginAccount = new();
         private readonly DatabaseContext _dataContext = new();
         private readonly IConfiguration _configuration;
         private readonly AccountService _userService;
@@ -30,7 +30,7 @@ namespace Backend.Controllers
         public async Task<ActionResult<Account>> AddAccount(Account newAccount) => await _userService.AddAccount(newAccount);
 
         [HttpPost("login")]
-        public async Task<ActionResult<Account>> Login(LoginModel request)
+        public async Task<ActionResult<Account>> Login(LoginDto request)
         {
             // Implement authentication logic here
             if (_dataContext == null)
@@ -46,11 +46,37 @@ namespace Backend.Controllers
             if (correspondingAccount.Username == request.Username && BCrypt.Net.BCrypt.Verify(correspondingAccount.Password, encryptedPassword))
             {
                 loginAccount.AccountId = correspondingAccount!.AccountId;
+                loginAccount.Token = CreateToken(correspondingAccount);
                 return Ok(loginAccount);
             }
             // Example:
 
             return NotFound("Invalid credentials");
+        }
+
+        private string CreateToken(Account account)
+        {
+            var claims = new ClaimsIdentity(new[] {
+                new Claim(ClaimTypes.Name, account.Username),
+            });
+            var t = _configuration.GetSection("AppSettings:Token").Value!;
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(t));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+            var expiry = DateTime.Now.AddHours(1);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Expires = expiry,
+                Issuer = "Blis",
+                Audience = "Blis_accounts",
+                SigningCredentials = creds,
+            };
+            //initiate the token handler 
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenJwt = tokenHandler.CreateToken(tokenDescriptor);
+            var token = tokenHandler.WriteToken(tokenJwt);
+
+            return token;
         }
 
 
